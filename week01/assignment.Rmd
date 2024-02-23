@@ -1,0 +1,14 @@
+---
+title: "Assignment 01: Prepare Environment"
+author: "Lukas Jonathan Haeuser"
+date: "2024-02-23"
+output: html_document
+---
+
+**Testing of the installed packages:** Packages have been installed to a separate environment in `../env`. Import of `epiwraps` cannot find the `backports` package, so it needs to be imported manually beforehand. Then session info is printed.
+
+```{r prepare_environment}
+suppressMessages(library(backports, lib.loc="../env"))
+suppressMessages(library(epiwraps, lib.loc="../env"))
+sessionInfo()
+```
