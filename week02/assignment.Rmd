@@ -1,0 +1,47 @@
+---
+title: "Assignment 02: AnnotationHub and EnsDb"
+author: "Lukas Jonathan Haeuser"
+date: "2024-03-05"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(AnnotationHub, lib.loc="../env") # to fetch genomes, annotations, etc.
+  library(ensembldb, lib.loc="../env")     # to manipulate ensembl gene annotations
+  library(GenomicRanges, lib.loc="../env") # data structure for genomic ranges
+  library(backports, lib.loc="../env")
+  library(epiwraps, lib.loc="../env")      # visualization
+  library(rtracklayer, lib.loc="../env")
+})
+```
+
+```{r}
+ah <- AnnotationHub()
+query(ah, c("Mus Musculus", "ensembl", "EnsDb", "102", "GRCm38"))
+query(ah, c("Mus Musculus", "ensembl", "GRCm38", "TwoBit", "dna_sm"))
+query(ah, c("Drosophila Melanogaster", "ensembl", "TwoBit", "BDGP6", "dna_sm"))
+```
+
+```{r}
+ensdb.mouse <- ah[["AH89211"]]
+dna_sm.mouse <- ah[["AH88477"]]
+dna_sm.mouse <- ah[["AH106160"]]
+```
+
+```{r}
+g <- genes(ensdb.mouse)
+pcg <- g[which(g$gene_biotype=="protein_coding")]
+
+paste0("Number of different ensemble gene IDs: ", length(unique(pcg$gene_id)))
+paste0("Number of different gene symbols: ", length(unique(pcg$symbol)))
+```
+
+```{r}
+ex <- exons(ensdb.mouse)
+head(ex)
+```
+```{r}
+hist(log10(lengths(ex)))
+```
+

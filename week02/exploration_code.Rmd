@@ -6,10 +6,11 @@ output: html_document
 
 ```{r}
 suppressPackageStartupMessages({
-  library(AnnotationHub) # to fetch genomes, annotations, etc.
-  library(ensembldb)     # to manipulate ensembl gene annotations
-  library(GenomicRanges) # data structure for genomic ranges 
-  library(epiwraps)      # visualization
+  library(AnnotationHub, lib.loc="../env") # to fetch genomes, annotations, etc.
+  library(ensembldb, lib.loc="../env")     # to manipulate ensembl gene annotations
+  library(GenomicRanges, lib.loc="../env") # data structure for genomic ranges
+  library(backports, lib.loc="../env")
+  library(epiwraps, lib.loc="../env")      # visualization
 })
 ```
 
@@ -25,6 +26,28 @@ q
 
 ensdb <- ah[["AH95713"]]
 ensdb
+```
+
+
+```{r}
+g <- genes(ensdb)
+head(g)
+length(g)
+
+table(g$gene_biotype)
+
+pcg <- g[which(g$gene_biotype=="protein_coding")]
+head(pcg)
+length(pcg)
+
+ex <- exons(ensdb)
+head(ex)
+ex <- exonsBy(ensdb)
+head(ex)
+
+numExonsPerTx <- lengths(ex)
+head(numExonsPerTx)
+hist(numExonsPerTx)
 ```
 
 ```{r}
