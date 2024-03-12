@@ -1,0 +1,99 @@
+---
+title: "Assignment 03: : Processing ChIP-Seq"
+output: html_document
+author: Lukas Haeuser
+date: "2024-03-08"
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(AnnotationHub, lib.loc="../env")
+  library(Rsubread, lib.loc="../env")
+  library(rtracklayer, lib.loc="../env")
+  library(Biostrings, lib.loc="../env")
+  library(Rfastp, lib.loc="../env")
+  library(backports, lib.loc="../env")
+  library(epiwraps, lib.loc="../env")
+  library(ensembldb, lib.loc="../env")
+  library(GenomicRanges, lib.loc="../env")
+})
+```
+
+```{r}
+ah <- AnnotationHub()
+```
+
+
+```{r, eval=FALSE}
+options(timeout=3600)
+download.file("https://www.encodeproject.org/files/ENCFF014MOQ/@@download/ENCFF014MOQ.fastq.gz", dest="raw/ENCFF127RRR.fastq.gz", mode = "wb")
+```
+# Reads QC and trimming
+
+```{r}
+filepath <- "./raw/ENCFF127RRR.fastq.gz"
+qc <- Rfastp::rfastp(filepath, thread=8, overrepresentationAnalysis=TRUE,
+        outputFastq=file.path("rfastp.trimmed/", gsub("\\.fastq\\.gz$","",basename(filepath)))
+)
+```
+# Alignment
+
+```{r}
+genome <- ah[["AH49674"]]
+export(import.2bit(genome), "BDGP6_genome/genome.fasta.gz", compress=TRUE)
+Rsubread::buildindex("BDGP6_genome/rsubread", reference="BDGP6_genome/genome.fasta.gz")
+```
+
+```{r}
+align.stats <- Rsubread::align(index="BDGP6_genome/rsubread", type="dna",
+                               readfile1="rfastp.trimmed/ENCFF127RRR_R1.fastq.gz",
+                               output_file="aligned/ENCFF127RRR.bam",
+                               nthreads=8, sortReadsByCoordinates=TRUE)
+align.stats
+```
+
+Total_reads	= 16109551
+
+Mapped_reads = 7446729
+
+Percentage of mapped reads = mapped_reads / total_reads * 100% 
+                           = 7446729 / 16109551 * 100%
+                           = 46%
+                           
+
+# Peak calling
+
+```{r}
+peaks <- callPeaks("aligned/ENCFF127RRR.bam", fragLength=50L)
+rtracklayer::export.bed(peaks, "peaks/peaks.bed")
+```
+
+4222 peaks were found.
+
+Get gene ranges.
+
+```{r}
+ensdb <- ah[["AH95713"]]
+genes <- genes(ensdb)
+head(genes)
+```
+### Find peaks within genes
+
+```{r}
+peaks <- rtracklayer::import.bed("peaks/peaks.bed")
+suppressWarnings(findOverlaps(peaks, genes, type="within"))
+```
+Let us look at peak 1 which is in gene 131.
+
+```{r}
+peaks[1]
+genes[131]
+```
+
+Indeed peak 1 (Range = 531719-531745) is within gene 131 (Range = 476220-540560).
+
+### Plot peak
+
+```{r}
+plotSignalTracks("aligned/ENCFF127RRR.bam", region=peaks[1], extend = lengths(peaks[1]))
+```
