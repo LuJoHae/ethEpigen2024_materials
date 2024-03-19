@@ -1,0 +1,73 @@
+---
+title: "ENCODE Peaks"
+author: "Lukas Haeuser"
+date: "2024-03-15"
+output: html_document
+---
+
+```{r}
+suppressWarnings(suppressPackageStartupMessages({
+  library(backports, lib.loc = "../env")
+  library(ensembldb, lib.loc = "../env")
+  library(AnnotationHub, lib.loc = "../env")
+  library(rtracklayer, lib.loc = "../env")
+  library(epiwraps, lib.loc = "../env")
+  library(GenomicRanges, lib.loc = "../env")
+}))
+```
+
+```{r}
+urls <- c(
+  "https://www.encodeproject.org/files/ENCFF653YVR/@@download/ENCFF653YVR.bed.gz",
+  "https://www.encodeproject.org/files/ENCFF974BMC/@@download/ENCFF974BMC.bed.gz",
+  "https://www.encodeproject.org/files/ENCFF426IIV/@@download/ENCFF426IIV.bed.gz",
+  "https://www.encodeproject.org/files/ENCFF274UIB/@@download/ENCFF274UIB.bed.gz",
+  "https://www.encodeproject.org/files/ENCFF008XKX/@@download/ENCFF008XKX.bed.gz"
+)
+
+histone.modifications <- c(
+  "H3K4me3",
+  "H3K4me1",
+  "H3K27ac",
+  "H3K27me3"
+)
+
+```
+
+```{r}
+download.container <- data.frame("label" = c("p300", urls = histone.modifications), 
+                                 "url" = urls, 
+                                 row.names = NULL)
+for (i in 1:nrow(download.container)) {
+  message(paste("Downloading", 
+                download.container[[i, "label"]],
+                "from", 
+                download.container[[i, "url"]]))
+  download.file(download.container[[i, "url"]], 
+                dest=paste0("peaks/", 
+                download.container[[i, "label"]], ".narrowPeak"),
+                mode = "wb")
+}
+```
+```{r}
+p300.peaks <- rtracklayer::import("peaks/p300.narrowPeak")
+head(p300.peaks)
+```
+```{r}
+histone.modifications.peaks <- c()
+for (histone.modification in histone.modifications) {
+  histone.modifications.peaks[[histone.modification]] <-
+    rtracklayer::import(paste0("peaks/", histone.modification, ".narrowPeak"))
+}
+head(histone.modifications.peaks)
+```
+```{r}
+for (i in 1:length(histone.modifications)) {
+  overlap.number <- (length(findOverlaps(histone.modifications.peaks[[i]], p300.peaks, type="any")))
+  print(paste0("Protion of p300 peaks overlapping with ", 
+               histone.modifications[[i]], 
+               " peaks: ", 
+               round(overlap.number/length(p300.peaks)*100, 2), 
+               "%"))
+}
+```
