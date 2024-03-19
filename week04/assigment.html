@@ -548,17 +548,25 @@ head(histone.modifications.peaks)</code></pre>
 ##   -------
 ##   seqinfo: 20 sequences from an unspecified genome; no seqlengths</code></pre>
 <pre class="r"><code>for (i in 1:length(histone.modifications)) {
-  overlap.number &lt;- (length(findOverlaps(histone.modifications.peaks[[i]], p300.peaks, type=&quot;any&quot;)))
+  # Find all overlaps
+  overlaps &lt;- findOverlaps(p300.peaks, 
+                           histone.modifications.peaks[[i]], 
+                           type=&quot;any&quot;, 
+                           select = &quot;all&quot;)
+  
+  # Filter out multiple overlaps of the same p300 peak
+  unique.overlaps.number &lt;- length(unique(queryHits(overlaps)))
+  
   print(paste0(&quot;Protion of p300 peaks overlapping with &quot;, 
                histone.modifications[[i]], 
                &quot; peaks: &quot;, 
-               round(overlap.number/length(p300.peaks)*100, 2), 
+               round(unique.overlaps.number/length(p300.peaks)*100, 2), 
                &quot;%&quot;))
 }</code></pre>
-<pre><code>## [1] &quot;Protion of p300 peaks overlapping with H3K4me3 peaks: 39.49%&quot;
-## [1] &quot;Protion of p300 peaks overlapping with H3K4me1 peaks: 15.98%&quot;
-## [1] &quot;Protion of p300 peaks overlapping with H3K27ac peaks: 61.33%&quot;
-## [1] &quot;Protion of p300 peaks overlapping with H3K27me3 peaks: 0.25%&quot;</code></pre>
+<pre><code>## [1] &quot;Protion of p300 peaks overlapping with H3K4me3 peaks: 35.01%&quot;
+## [1] &quot;Protion of p300 peaks overlapping with H3K4me1 peaks: 15.52%&quot;
+## [1] &quot;Protion of p300 peaks overlapping with H3K27ac peaks: 54.41%&quot;
+## [1] &quot;Protion of p300 peaks overlapping with H3K27me3 peaks: 0.23%&quot;</code></pre>
 
 
 

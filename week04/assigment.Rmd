@@ -63,11 +63,19 @@ head(histone.modifications.peaks)
 ```
 ```{r}
 for (i in 1:length(histone.modifications)) {
-  overlap.number <- (length(findOverlaps(histone.modifications.peaks[[i]], p300.peaks, type="any")))
+  # Find all overlaps
+  overlaps <- findOverlaps(p300.peaks, 
+                           histone.modifications.peaks[[i]], 
+                           type="any", 
+                           select = "all")
+  
+  # Filter out multiple overlaps of the same p300 peak
+  unique.overlaps.number <- length(unique(queryHits(overlaps)))
+  
   print(paste0("Protion of p300 peaks overlapping with ", 
                histone.modifications[[i]], 
                " peaks: ", 
-               round(overlap.number/length(p300.peaks)*100, 2), 
+               round(unique.overlaps.number/length(p300.peaks)*100, 2), 
                "%"))
 }
 ```
