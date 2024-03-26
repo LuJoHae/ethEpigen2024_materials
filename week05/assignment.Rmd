@@ -1,0 +1,79 @@
+---
+title: "Assignment 05: Bivalent Domains"
+author: "Lukas Haeuser"
+date: "2024-03-26"
+output: html_document
+---
+
+```{r}
+suppressWarnings(suppressPackageStartupMessages({
+  library(magick, lib.loc="../env")
+  library(AnnotationHub, lib.loc="../env")
+  library(ensembldb, lib.loc="../env")
+  library(GenomicRanges, lib.loc="../env")
+  library(epiwraps, lib.loc="../env")
+  library(rtracklayer, lib.loc="../env")
+  library(ggplot2, lib.loc="../env")
+}))
+ah <- AnnotationHub(localHub=TRUE)
+ensdb <- ah[["AH89211"]]
+```
+
+```{r, eval=FALSE}
+options(timeout=1800)
+
+# Human embryonic stem cells (ESC)
+download.file("https://ethz-ins.org/content/p300_subset.zip", "p300_subset.zip")
+unzip("p300_subset.zip")
+
+# ChIP-seq (Histone ChIP-seq); H3K27me3; Homo sapiens hepatocyte originated from H9; in vitro differentiated cells
+download.file("https://www.encodeproject.org/files/ENCFF732JQO/@@download/ENCFF732JQO.bed.gz", "peaks/hepatocyte.H3K27me3.bed")
+
+# ChIP-seq (Histone ChIP-seq); H3K4me3; Homo sapiens hepatocyte originated from H9; in vitro differentiated cells
+download.file("https://www.encodeproject.org/files/ENCFF902YJU/@@download/ENCFF902YJU.bed.gz", "peaks/hepatocyte.H3K4me3.bed")
+```
+
+```{r}
+peakfiles = list(
+  "embryonicStemCells.H3K27me3"="./peaks/H3K27me3.bed", 
+  "embryonicStemCells.H3K4me3"="./peaks/H3K4me3.bed",
+  "hepatocyte.H3K27me3"="./peaks/hepatocyte.H3K27me3.bed", 
+  "hepatocyte.H3K4me3"="./peaks/hepatocyte.H3K4me3.bed"
+)
+peaks <- lapply(peakfiles, FUN=rtracklayer::import, format="narrowPeak")
+```
+
+```{r}
+# Determine bivalent domains
+bivalent.domains.index <- findOverlaps(peaks$embryonicStemCells.H3K27me3, 
+                                       peaks$embryonicStemCells.H3K4me3, 
+                                       type="any", select="all", 
+                                       minoverlap = 0L, maxgap=-1L)
+bivalent.domains <- intersect(peaks$embryonicStemCells.H3K27me3[bivalent.domains.index@from], 
+                              peaks$embryonicStemCells.H3K4me3[bivalent.domains.index@to])
+print(bivalent.domains)
+```
+```{r}
+# Find bivalent domains of embryonic stem cells in differentiated hepatocytes
+overlaps <- list()
+
+overlaps$H3K27me3 <- findOverlaps(bivalent.domains, peaks$hepatocyte.H3K27me3,
+                                  type="any", select="all",
+                                  minoverlap = 0L, maxgap=-1L)
+
+overlaps$H3K4me3 <-findOverlaps(bivalent.domains, peaks$hepatocyte.H3K4me3,
+                                type="any", select="all",
+                                minoverlap = 0L, maxgap=-1L)
+
+overlaps$both <- Reduce(intersect, list(overlaps$H3K27me3@to, 
+                                        overlaps$H3K4me3@to))
+
+overlaps
+```
+
+```{r}
+length(unique(overlaps$H3K27me3@from))
+length(unique(overlaps$H3K4me3@from))
+```
+
+There are 4 ESC bivalent domains that overlap with peaks in the H3K27me3 mark and 5 with H3K4me3. There is no bivalent domain that overlaps with both.
