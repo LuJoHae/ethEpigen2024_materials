@@ -1,0 +1,65 @@
+---
+title: "Working with DNA motifs"
+author: "Lukas Häuser"
+date: "2023-04-17"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(GenomicRanges)
+  library(ggplot2)
+  library(memes) # for the meme-based methods -- COMMENT OUT when using alternatives
+  library(motifmatchr) # for scanning sequences for matches of given motifs
+  library(Biostrings) # for handling sequences
+  library(MotifDb) # database of motifs
+  library(TFBSTools) # for handling some motif formats
+  library(universalmotif) # for converting motifs to various formats
+})
+```
+
+Getting peaks for REST on chr1 from human liver sample:
+```{r}
+# ChIP-seq (TF ChIP-seq) of REST from Homo sapiens with nonobstructive coronary artery disease; liver tissue male adult (32 years):
+download.file("https://www.encodeproject.org/files/ENCFF044GNV/@@download/ENCFF044GNV.bed.gz", "ENCFF044GNV.bed.gz")
+peaks <- rtracklayer::import("ENCFF044GNV.bed.gz", format="NarrowPeak")
+seqlevelsStyle(peaks) <- "Ensembl"  # to change the convention of the chromosome names to ensembl (i.e. without 'chr')
+peaks_chr1 <- peaks[seqnames(peaks)=="1"]
+```
+Loading human genome sequence:
+```{r}
+genome_seqs <- Biostrings::readDNAStringSet("Homo_sapiens.GRCh38.dna.primary_assembly.fa")
+```
+
+Search for REST motifs in human:
+```{r}
+motifs <- query(MotifDb, "REST", "Hsapiens")
+names(motifs)
+```
+
+Here we choose the "JASPAR_CORE" (because we also used it in the practical):
+```{r}
+motif <- motifs[["Hsapiens-JASPAR_CORE-REST-MA0138.2"]]
+view_motifs(motif)
+```
+
+Matching motif on the first chromosome:
+```{r}
+motif2 <- convert_motifs(motif, class="TFBSTools-PWMatrix")
+moi <- motifmatchr::matchMotifs(motif2, subject=peaks_chr1, genome=Rsamtools::FaFile("Homo_sapiens.GRCh38.dna.primary_assembly.fa"), out="positions")
+moi <- moi[[1]] # we scanned for just one motif, so we get the results for that motif
+head(moi)
+```
+How many of the peaks have a motif?
+```{r}
+peaks_by_having_motif <- table(overlapsAny(peaks_chr1, moi))
+cat(paste("Of the", sum(peaks_by_having_motif), "peaks (on chr1),", 
+          peaks_by_having_motif[["TRUE"]], 
+          paste0("(", round(100*peaks_by_having_motif[["TRUE"]]/sum(peaks_by_having_motif)), "%)"), 
+          "contain a motif.\n"))
+motif_instances_by_having_peak <- table(overlapsAny(moi, peaks_chr1))
+cat(paste("Of the", sum(motif_instances_by_having_peak), "motif instances (on chr1),", 
+          motif_instances_by_having_peak[["TRUE"]], 
+          paste0("(", round(100*motif_instances_by_having_peak[["TRUE"]]/sum(motif_instances_by_having_peak)), "%)"), 
+          "contain a peak.\n"))
+```
