@@ -1,0 +1,8 @@
+---
+title: "Assignment 07: ATAC-seq exploration"
+author: "Lukas Häuser"
+date: "2023-04-25"
+output: html_document
+---
+
+Sorry, I had no time to do the assignment this week!
