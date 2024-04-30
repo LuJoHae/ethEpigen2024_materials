@@ -70,6 +70,9 @@ bams
 peak <- rtracklayer::import("peaks.narrowPeak")
 # we need to resize the peaks so that they all have a comparable size
 peak <- resize(peak,300,fix="center")
+
+# usually data is paired, but note here
+# if data is not paired but paired=true, function throws error
 se <- chromVAR::getCounts(alignment_files = bams, peaks = peak, paired = FALSE)
 
 se
@@ -97,12 +100,13 @@ se <- chromVAR::addGCBias(se, genome=genome)
 # we don't use `out="positions"` here
 moi <- motifmatchr::matchMotifs(motifs, subject=se, genome=genome)
 
+set.seed(0) # fix random seed
 # for each peak, we identify similar peaks as background
-bg <- chromVAR::getBackgroundPeaks(se, niterations=1000)
+bg <- chromVAR::getBackgroundPeaks(se, niterations=1000) # non-deeterministic!!!
 # for each motif, we computed per-sample deviations relative to the background
 dev <- chromVAR::computeDeviations(object = se, annotations=moi,
                                    background_peaks=bg)
-dev
+dev #ChromVARDeviation objects inherit from SummerizedExperiments class
 colData(dev)
 ```
 
@@ -115,7 +119,7 @@ head(assays(dev)$z)
 ```{r}
 dev$condition
 # if needed, we can specify the baseline condition, by default it's the first in alphabetical order
-dev$condition <- factor(dev$condition)
+dev$condition <- factor(dev$condition) # 0th factor must be the control!!!
 dev$condition <- relevel(dev$condition, "CTRL")
 mm <- model.matrix(~dev$condition)
 # equivalent:
