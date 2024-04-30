@@ -133,7 +133,7 @@ head(assays(dev)$z)
 ```{r}
 dev$condition
 # if needed, we can specify the baseline condition, by default it's the first in alphabetical order
-dev$condition <- factor(dev$condition) # 0th factor must be the control!!!
+dev$condition <- factor(dev$condition)
 dev$condition
 dev$condition <- relevel(dev$condition, "CTRL")
 mm <- model.matrix(~dev$condition)
