@@ -18,6 +18,8 @@ week*/aligned
 *.bai
 *.narrowPeak
 *.RData
+*.fa2
+*.rds
 rfastp.trimmed/
 peaks/
 tracks/
