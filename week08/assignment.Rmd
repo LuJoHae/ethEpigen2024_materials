@@ -1,0 +1,129 @@
+---
+title: "Assignment 08: ATAC-seq exploration"
+author: "Lukas Häuser"
+date: "2024/05/02"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(epiwraps)
+  library(motifmatchr)
+  library(MotifDb)
+  library(universalmotif)
+  library(ggplot2)
+  library(SummarizedExperiment) # data structure
+  library(sechm) # for plotting heatmaps from a SummrizedExperiment
+  library(BiocParallel) # for multithreading
+  library(chromVAR) # for motif accessibility estimation
+  library(limma) # for statistical analysis
+})
+
+register(MulticoreParam(4))
+```
+
+# Motif Analysis
+
+```{r}
+# Setup data
+se <- readRDS("mouse_mm38_hippocampus.peakCounts.SE.rds")
+colData(se)$condition <- c("CTRL_FEMALE", "CTRL_FEMALE", "CTRL_FEMALE",
+                           "CTRL_MALE", "CTRL_MALE", "CTRL_MALE",
+                           "FSS_FEMALE", "FSS_FEMALE", "FSS_FEMALE",
+                           "FSS_MALE", "FSS_MALE", "FSS_MALE")
+rowRanges(se)$test <- 3
+row.names(se) <- as.character(granges(se))
+
+# Get mouse genome
+genome <- Rsamtools::FaFile("Mus_musculus.GRCm38.dna.primary_assembly.fa2")
+
+# Examine GC bias
+se <- chromVAR::addGCBias(se, genome=genome)
+hist(rowData(se)$bias)
+
+# Get motifs
+motifs <- query(MotifDb, c("HOCOMOCOv10", "Mmusculus"))
+motifs <- do.call(TFBSTools::PWMatrixList, setNames(
+           universalmotif::convert_motifs(motifs, class="TFBSTools-PWMatrix"),
+           mcols(motifs)$geneSymbol))
+
+moi <- motifmatchr::matchMotifs(motifs, subject=se, genome=genome)
+
+# Motif analysis
+set.seed(0)
+bg <- chromVAR::getBackgroundPeaks(se, niterations=1000)
+dev <- chromVAR::computeDeviations(object = se, annotations=moi, background_peaks=bg)
+```
+
+# Differential analysis: CTRL vs. FSS
+
+```{r}
+# Setup model
+dev$condition <- c("CTRL", "CTRL", "CTRL",
+                   "CTRL", "CTRL", "CTRL",
+                   "FSS", "FSS", "FSS",
+                   "FSS", "FSS", "FSS")
+dev$condition <- factor(dev$condition)
+dev$condition <- relevel(dev$condition, "CTRL")
+mm <- model.matrix(~dev$condition)
+print(mm)
+
+# Fit model
+fit <- limma::eBayes(limma::lmFit(object = assays(dev)$z, design = mm))
+res <- as.data.frame(limma::topTable(fit, coef=2, number = Inf))
+res$TF <- row.names(res)
+res <- res[duplicated(res["ID"]),] # remove duplicates
+
+# Vulcano plot
+ggplot(res, aes(logFC, -log10(adj.P.Val), label=ID)) + geom_text()
+
+# Heatmape of z scores
+metadata(dev)$anno_colors <- list(condition=c(CTRL="darkred", FSS="darkgreen"))
+row.names(res) <- res$ID
+sechm::sechm(dev, features = head(row.names(res)), assayName="z")
+
+# Inspect most significant motifs
+res[head(row.names(res)),]
+view_motifs(motifs[head(row.names(res))])
+```
+
+
+
+  
+The most significant motifs are GCR, PRGR, TFE2, NR1I2, PLAG1, and NFIA. The FSS condition results in a positive logFC of GCR and PRGR at about 1.9, while it is negative for NFIA and TFE2 at -1.7 and -1.1, respectively. Thus, the stress induces a higher expression of GCR and PRGR, and a lower expresstion of NFIA and TFE2. Further, the two most significant motifs GCR and PRGR are almost identical, which explains that they also have identical logFCs. The vulcano plot shows the same adjusted p values for all moifs. To me this looks more like an error, but I cannot explain it.
+
+# Differential analysis: FEMALE vs. MALE
+
+```{r}
+# Setup model
+dev$condition <- c("FEMALE", "FEMALE", "FEMALE",
+                   "MALE", "MALE", "MALE",
+                   "FEMALE", "FEMALE", "FEMALE",
+                   "MALE", "MALE", "MALE")
+dev$condition <- factor(dev$condition)
+dev$condition <- relevel(dev$condition, "FEMALE")
+mm <- model.matrix(~dev$condition)
+print(mm)
+
+# Fit model
+fit <- limma::eBayes(limma::lmFit(object = assays(dev)$z, design = mm))
+res <- as.data.frame(limma::topTable(fit, coef=2, number = Inf))
+res$TF <- row.names(res)
+res <- res[duplicated(res["ID"]),] # remove duplicates
+
+# Vucano plot
+ggplot(res, aes(logFC, -log10(adj.P.Val), label=TF)) + geom_text()
+
+# Heatmap of z scores
+metadata(dev)$anno_colors <- list(condition=c(FEMALE="darkred", MALE="darkgreen"))
+row.names(res) <- res$ID
+sechm::sechm(dev, features = head(row.names(res)), assayName="z", breaks = 1)
+
+# Inspect most significant motifs
+res[head(row.names(res)),]
+view_motifs(motifs[head(row.names(res))])
+```
+
+
+  
+Of the most significant motifs, all of their logFCs are positive, so they are more expressed in males compared to females; apart from SP1. From before, we know that stress decreases NFIA and increases NR1I2. Both these TFs are also strongly influenced by sex, where both are increased in males with respect to females.
