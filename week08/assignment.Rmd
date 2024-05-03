@@ -86,9 +86,6 @@ sechm::sechm(dev, features = head(row.names(res)), assayName="z")
 res[head(row.names(res)),]
 view_motifs(motifs[head(row.names(res))])
 ```
-
-
-
   
 The most significant motifs are GCR, PRGR, TFE2, NR1I2, PLAG1, and NFIA. The FSS condition results in a positive logFC of GCR and PRGR at about 1.9, while it is negative for NFIA and TFE2 at -1.7 and -1.1, respectively. Thus, the stress induces a higher expression of GCR and PRGR, and a lower expresstion of NFIA and TFE2. Further, the two most significant motifs GCR and PRGR are almost identical, which explains that they also have identical logFCs. The vulcano plot shows the same adjusted p values for all moifs. To me this looks more like an error, but I cannot explain it.
 
@@ -124,6 +121,4 @@ res[head(row.names(res)),]
 view_motifs(motifs[head(row.names(res))])
 ```
 
-
-  
 Of the most significant motifs, all of their logFCs are positive, so they are more expressed in males compared to females; apart from SP1. From before, we know that stress decreases NFIA and increases NR1I2. Both these TFs are also strongly influenced by sex, where both are increased in males with respect to females.
