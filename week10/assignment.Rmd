@@ -1,0 +1,93 @@
+---
+title: "Clustering and enrichment analysis"
+author: "Lukas Häuser"
+date: "2024/05/15"
+output: html_document
+---
+
+```{r}
+suppressPackageStartupMessages({
+  library(GenomicRanges)
+  library(epiwraps)
+  library(ggplot2)
+  library(rGREAT)
+})
+
+set.seed(0) # fix seed to ensure reproducibility
+```
+
+## Download the data
+
+```{r, eval=FALSE}
+options(timeout = 6000)
+download.file("https://ethz-ins.org/content/w10.assignment.zip", "w10.assignment.zip")
+unzip("w10.assignment.zip")
+list.files()
+```
+
+## Prepare the regions and the tracks
+
+```{r}
+N <- 3
+tracks.files <- list.files(pattern="bw$")
+peaks.files <- list.files(pattern="bed$")
+```
+
+```{r}
+peaks <- sapply(X=peaks.files, FUN=rtracklayer::import.bed)
+peaks <- lapply(peaks, FUN=function(x) x[x$score>990]) # filter for high quality peaks
+regions <- reduce(unlist(GRangesList(peaks)))
+```
+
+```{r}
+ese <- signal2Matrix(tracks.files, regions, extend=2000)
+plotEnrichedHeatmaps(ese, cluster_rows = FALSE, show_row_dend=TRUE)
+```
+
+## Clustering
+
+
+```{r}
+cl <- clusterSignalMatrices(ese, k=2:10)
+print(ggplot(cl$varExplained, aes(k, varExplained)) + geom_line())
+```
+
+The elbow plot are rather inconclusive. However, the elbow plot has a little kink at `k=8`, so we took `k=8`.
+
+```{r}
+mycolors <- c("1"="red", "2"="blue", "3"="darkgreen", "4"="orange", "5"="pink", "6"="violet", "7"="brown", "8"="grey")
+cl <- clusterSignalMatrices(ese, k=8)
+rowData(ese)$cluster <- cl
+print(plotEnrichedHeatmaps(ese, row_split="cluster", mean_color=mycolors, colors=c("white","darkred")))
+```
+
+```{r}
+d <- meltSignals(ese, splitBy=cl)
+plot(ggplot(d, aes(position, mean, colour=sample)) + geom_line(size=1.2) + facet_wrap(~split))
+```
+
+## Enrichment analysis
+
+Enrichment analysis with rGREAT, which is based on GO.
+
+Find what's enriched in the first cluster with respect to the others:
+
+```{r}
+split.regions <- split(rowRanges(ese), rowData(ese)$cluster)
+res <- great(split.regions[["1"]], gene_sets="GO:BP", tss_source="hg38", background=regions, cores=6)
+bp <- getEnrichmentTables(res)
+head(bp)
+```
+
+Which of these gene sets are significant and how large is their log fold enrichment?
+
+```{r}
+bp.significant <- bp[bp$p_adjust < 0.05,]
+print(dim(bp.significant))
+hist(log(bp.significant$fold_enrichment))
+```
+## Results
+
+Creb1 and Creb3L1 show quite similar peaks in most clusters. However, in cluster 1 Creb1 shows a strong peak, while Creb3L1 does not. Thus, we can use cluster 1 to differentiate between Creb1 and Creb3L1. In contrast, Creb3 gives very different signals compared to Creb1 and Creb3L1 for most clusters. It can most clearly be differentiated from Creb1 and Creb3L1 in by looking at cluster 4. 
+
+In the enrichment analysis, we found 60 significantly enriched gene sets. Their log fold enrichments are all positive and go up to 1.4, while most are between 0.2 and 0.8.
