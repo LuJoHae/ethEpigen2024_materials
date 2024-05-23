@@ -1,0 +1,88 @@
+---
+title: "Assignment 11: DNA methylation and enrichment analysis"
+author: "Lukas Häuser"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r}
+set.seed(40) # Fix seed for reproducibility
+```
+
+Get Bisulfite-sequencing data:
+```{r, bsseq}
+bs <- readRDS("./w11_practical/bs.rds")
+
+MatrixGenerics::rowRanges(bs)
+Biobase::pData(bs)
+```
+Get annotations (hs):
+```{r}
+# genes
+ah <- AnnotationHub::AnnotationHub()
+ensdb <- ah[["AH109336"]]
+chr22 <-  GRanges(seqnames=Rle(c("22")), 
+                  ranges = IRanges(1, end=50818468))
+genesChr22 <- genes(ensdb, columns=c("gene_seq_start", "gene_seq_end", "gene_name"),
+                    filter=GRangesFilter(chr22))
+seqlevelsStyle(genesChr22) <- "UCSC"
+```
+
+Obtain the coordinates of the genes within the top 5 DMRs.  
+```{r}
+dmrRanges <- readRDS("./w11_practical/dmr.rds")
+
+dmrRanges <- dmrRanges[order(abs(dmrRanges$meandiff), decreasing=TRUE)]
+dmrRangesGenes <- dmrRanges[!is.na(dmrRanges$overlapping.genes)]
+
+# Get the genes within Differentially methylated regions
+topIdx <- order(dmrRangesGenes$min_smoothed_fdr)[1:5] # get top 5 DMR regions
+genesDmr <- unlist(data.table::tstrsplit(dmrRangesGenes[topIdx]$overlapping.genes, split=", "))
+genesDmr <- genesDmr[!is.na(genesDmr)]
+dmrGenes.top <- genesChr22[genesChr22$gene_name %in% genesDmr]
+dmrGenes.top
+
+# Get all
+genesDmr <- unlist(data.table::tstrsplit(dmrRangesGenes$overlapping.genes, split=", "))
+genesDmr <- genesDmr[!is.na(genesDmr)]
+dmrGenes.all <- genesChr22[genesChr22$gene_name %in% genesDmr]
+dmrGenes.all
+```
+Retrieve metyhlation levels and visualize:
+```{r, look at bsseq objects}
+metPr <- bsseq::getMeth(bs, 
+                        regions=dmrGenes.top, 
+                        what="perRegion")
+colnames(metPr) <- colnames(bs)
+rownames(metPr) <- dmrGenes.top$gene_name
+metPr <- metPr[!is.na(rowSums(metPr)),]
+
+annotationCol <- as.data.frame(pData(bs))
+rownames(annotationCol) <- colnames(metPr)
+pheatmap::pheatmap(metPr, 
+                   cluster_rows=TRUE,
+                   cluster_cols=FALSE,
+                   annotation_col=annotationCol,
+                   show_rownames = TRUE,
+                   color=viridis::rocket(10))
+```
+Enrichment analysis of all genes within DMRs agaist all genes on chr22:
+```{r}
+res <- rGREAT::great(dmrGenes.all, gene_sets="GO:BP", tss_source="hg38", background=genesChr22, cores=6)
+bp <- rGREAT::getEnrichmentTables(res)
+bp.significant <- bp[bp$p_adjust < 0.05,] # filter for significance with p<5%
+bp.significant
+```
+
+Enrichment analysis of genes within top5 DMRs agaist all genes on chr22 (just because we thought that might be interesting too):
+```{r}
+res <- rGREAT::great(dmrGenes.top, gene_sets="GO:BP", tss_source="hg38", background=genesChr22, cores=6)
+bp <- rGREAT::getEnrichmentTables(res)
+bp.significant <- bp[bp$p_adjust < 0.05,] # filter for significance with p<5%
+bp.significant
+```
+
+# Results
+
+We identified the 5 regions with highest differential methylation. These 5 regions contain 7 genes (CDC45, PARVG, SHISAL1, FBLN1, PKDREJ, TRMU, CELSR1). We did enrichment analyses of all genes within DRMs against all genes of chr22 and of the 7 genes within the top5 DRMS. Then we retrieved the methylation levels of these 7 genes. With a significance of `p_adust<5%`, we found 68 enriched gene sets within DRMs on chr22. The highest fold enrichment of these gene sets is about 5.2 between the normal and cancer cases. In the the genes within the top 5 DRMs only a single gene set was found with a particularly high fold enrichment of approximately 7.2. Thus, it seems like the cancer case could be associated with high fold enrichment of highly diffirentially methylated regions.

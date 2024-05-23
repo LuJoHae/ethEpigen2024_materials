@@ -9,7 +9,7 @@ output:
 ```{r}
 suppressPackageStartupMessages({
   library(GenomicRanges)
-  library(epiwraps)
+  #library(epiwraps)
   library(ggplot2)
   library(rGREAT)
   library(AnnotationHub)
