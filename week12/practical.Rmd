@@ -129,8 +129,9 @@ mcols(peaks)[from(o),"target"] <- gi2[to(o)]$gene
 mcols(peaks)$target <- CharacterList(mcols(peaks)$target)
 # look at the output
 peaks
-```https://docs.google.com/presentation/d/15hb5Knwe8A-YL-pmawATYEzeD2fyN7Tu-e5P6hvo9v4/edit#slide=id.g24a8a99368d_0_0
+```
 
+https://docs.google.com/presentation/d/15hb5Knwe8A-YL-pmawATYEzeD2fyN7Tu-e5P6hvo9v4/edit#slide=id.g24a8a99368d_0_0
 
 ### Working with AtomicLists
 
