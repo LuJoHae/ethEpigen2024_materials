@@ -1,11 +1,77 @@
 ---
 title: "Final Project"
+subtitle: "Common modes of ERK induction resolve into context specific signalling via a combination of signal duration and cell type specific transcriptional repression "
 author: "Francesco Biancchi and Lukas Haeuser"
 date: "2024/07/02"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
-```{r}
+## Abstract
+
+In their study, Perera and Brickman attempted to replicate the data analysis of ATAC-seq data by investigating cell-type-specific responses to ERK signaling. The Fibroblast Growth Factor (FGF) pathway, mediated by ERK, plays diverse roles in development and disease. While it promotes differentiation in mammalian preimplantation embryos and naïve pluripotent stem cells, it supports self-renewal in primed pluripotent states closer to somatic differentiation. The intriguing question is how the same pathway can yield distinct outcomes in similar cell types.
+To address this, the researchers generated cell and mouse lines that allowed tissue- and time-specific activation of ERK. Their findings indicate that variations in ERK response primarily result from transcriptional target suppression, which correlates with reduced chromatin accessibility at regulatory regions. Interestingly, initial ERK responses are largely shared across different cell types, but they become more refined and cell-specific as signaling duration interacts with cell-specific gene regulatory networks. Notably, while chromatin changes are associated with ERK induction in naïve pluripotency, this is not observed in later stages, suggesting that chromatin context does not significantly influence the signaling response.
+In summary, Perera and Brickman propose that cell-type-specific ERK responses initially follow a common pattern but then adapt to specific lineages by suppressing unique cellular programs and indirectly stimulating available enhancer networks.
+
+## Introduction
+
+During embryonic development, a limited number of extracellular signals guide cell fate decisions by activating specific lineage-specific programs at precise times and locations. Given the vast diversity of cell types and the limited number of signals, it is essential to repurpose these signals to achieve cell type-specific outcomes. A notable example is the Fibroblast Growth Factor (FGF) signaling through Extracellular signal-Regulated Kinase (ERK), which employs the same set of kinases to produce varied responses in different tissues. FGF/ERK is crucial in determining cell fate and is one of the most frequently mutated pathways in cancer.
+
+In early mammalian development, the embryonic Epiblast segregates from extra-embryonic lineages necessary for post-implantation development, such as the Trophectoderm (TE) and the Primitive Endoderm (PrE). FGF/ERK is essential for forming both. Initially, it aids in segregating outer cells into the TE and inner cells into the Inner Cell Mass (ICM). Just before implantation, FGF/ERK drives the segregation of PrE from the Epiblast. This process begins when Epiblast cells secrete FGF4, activating ERK in neighboring cells and inducing PrE identity. Culturing pre-segregation mouse embryos with FGF4 or an FGF/ERK signaling inhibitor results in an ICM composed entirely of PrE or Epiblast cells, respectively.
+
+ERK inhibition’s ability to block PrE differentiation allows for efficiently deriving mouse Embryonic Stem Cells (mESCs) by expanding peri-implantation Epiblast in the presence of an FGF/ERK signaling inhibitor. This supports their expansion as pluripotent cells, capable of differentiating into all lineages. Naïve cells, resembling the earliest stage of embryonic development, exit naïve pluripotency upon ERK stimulation, which suppresses pluripotency factors and activates differentiation programs. Post-implantation Epiblast cells, expanded as pluripotent stem cell cultures, require FGF/ERK for expansion and to prevent differentiation into somatic lineages. These cells, termed primed, have gene expression profiles resembling later stages of embryonic development.
+
+FGF/ERK is not the only pathway with opposing outcomes in pre- and post-implantation Epiblast. WNT/ß-catenin activation promotes pluripotency in naïve Epiblast but induces differentiation in primed Epiblast. The Epiblast progresses out of the naïve state through morphogenetic changes, forming rosette-like structures and a cup-shaped Epiblast. Defined culture models mimicking this progression provide an ideal platform to investigate the molecular cues regulating FGF/ERK signaling.
+
+In this study, mouse and cell culture models were developed for time- and cell type-specific ERK activation using a combination of intrinsic c-RAF induction and Cre-mediated recombination. These models mapped responses to ERK signaling as cell states progressed from naïve to primed pluripotency. Early signaling responses showed remarkable conservation across cell types, while later responses varied and were mediated by repression of cell type-specific transcription. The study also mapped FGF-dependent regulatory regions, revealing that ERK triggers functional chromatin remodeling in naïve pluripotency and exploits existing accessible regions in primed pluripotency.
+
+## Results by Paper
+
+Researchers developed a method to study how cells in the mouse pre- and post-implantation epiblast react to ERK, both in vivo and in vitro. They used a genetic model with a continuously active c-RAF kinase linked to a tamoxifen-specific ligand binding domain, allowing precise activation with tamoxifen. To facilitate lineage-specific ERK activation in vivo, they placed a lox-stop-lox cassette before the inducible c-RAF and tagged it with HA and a H2B-mCherry reporter for visualization. They confirmed ERK induction and mCherry expression in mESCs before creating chimeric mice, which were bred to establish a stable homozygous line named CRAFR26.
+
+To verify the system, they bred CRAFR26 females with Sox2Cre males, detecting mCherry signal in the epiblast of E6.5 embryos and inducing the c-RAF kinase with tamoxifen. Treated embryos showed higher pERK expression compared to untreated ones. In vitro, they transiently transfected CRAFR26 mESCs with Cre, creating a cell line that expressed cRAF-HA-T2A-H2B-mCherry. These cells displayed uniform pERK induction after tamoxifen treatment, which was reversed by a MEK inhibitor. They ensured ERK signaling originated from the exogenous construct by culturing cells with an FGF receptor inhibitor and verified ESC identity by detecting SOX2 during ERK induction.
+
+ERK initiates an early common transcriptional response and later activates cell-specific programs. To chart the transcriptional response to ERK in pluripotent cell types, they differentiated ESCs into RSCs and EpiLCs, examining their transcriptome using bulk RNA-sequencing before and after ERK stimulation and reversion with MEKi. Principal Component Analysis revealed a stepwise progression from ESCs to RSCs to EpiLCs. Naïve ESCs expressed markers of naïve pluripotency, while EpiLCs expressed markers of primed pluripotency. RSCs displayed a transcriptome clustering between ESCs and EpiLCs, expressing both naïve and primed markers.
+
+ERK suppressed pluripotency genes in naïve ESCs but induced them in EpiLCs, aligning with FGF's role in supporting primed pluripotency. The ERK transcriptional response was divided between early ERK-responsive genes, upregulated in all cells, and late responsive genes, more specific to each cell type. ERK-mediated gene repression was cell type-specific, while activation was more widespread. They identified genes regulated by ERK in all conditions by clustering differentially expressed genes according to activation and repression dynamics. ERK-activated genes showed modest overlap between cell types, while ERK-repressed genes were more context-dependent.
+
+The study suggests that gene repression by ERK is more crucial in determining specific responses than activation. They identified genes associated with placenta development being suppressed in RSCs and genes related to angiogenesis being suppressed in EpiLCs. To supplement the in vitro analysis, they sequenced the transcriptome from in vivo pre- and post-implantation Epiblast before and after ERK activation. Principal Component Analysis indicated primary changes in gene expression due to in vitro adaptation but clearly distinguished naïve from primed states.
+
+To explore the differences between in vivo and in vitro conditions, researchers extracted the most significant genes contributing to variation across PC1. These genes were primarily related to biosynthesis and metabolism, expected from in vitro adaptation, and not associated with developmental processes. E3.5 Epiblast cells expressed markers of naïve pluripotency, similar to ESCs, while E5.5 Epiblast cells expressed markers of primed pluripotency, similar to EpiLCs.
+
+Correlation coefficients between in vivo and in vitro ERK-induced samples showed that ERK-induced E3.5 Epiblast correlated more closely with ERK-induced ESC samples, while E5.5 Epiblast correlated better with EpiLCs. Upon ERK induction, E3.5 Epiblast upregulated 58% of endoderm-related genes, and E5.5 Epiblast upregulated 54% of stem cell-annotated genes, mirroring the in vitro effect. ERK induced a global endoderm signature in E3.5 Epiblast, with Sox17 induction being more robust compared to Gata4 or Gata6. This suggests that Sox17 is an early immediate response to ERK, independent of GATA4 and GATA6.
+
+The study hypothesized that cell type-specific ERK responses could be mediated by regulatory regions differentially available when ERK signaling is activated or by ERK triggering the reorganization of accessible regions. Using ATAC-seq, they assessed differentially accessible regions between cellular states and upon ERK induction. They confirmed changes observed by ATAC-seq in ESCs, discovering that regions opening gained cofactor binding and active enhancer histone modifications, while regions becoming less accessible lost these features.
+
+Cell type-specific changes were confirmed by examining ATAC-seq signals at ESCs- and EpiLCs-specific enhancers. ESC-specific enhancers were more accessible in ESCs and gradually closed in RSCs and EpiLCs, while EpiLC enhancers were more accessible in EpiLCs. ERK-activated enhancers became more accessible with signaling in all cell types, while ERK-repressed enhancers became less accessible in naïve ESCs but not in RSCs and EpiLCs.
+
+ERK-activated regulatory regions were shared between cellular contexts, while repressed regions were more cell type-specific. The study identified common motifs in opening regions related to ERK-canonical factors, while motifs in closing regions were more context-specific. They found that repression appears cell type-specific, while activation is relatively ubiquitous. The study also examined changes in transcription factor occupancy, finding that ERK-canonical transcription factors showed similar increased binding scores upon ERK induction in all cells. This suggests that while activation mechanisms are shared, repression mechanisms are more specific to each cell type.
+
+When examining global transcription factor (TF) binding release in response to ERK, researchers observed minimal changes across all three cell types. However, a small number of TFs showed cell type-specific unbinding, with nuclear hormone receptors unbound in ESCs and FOX/SOX TFs losing binding in EpiLCs. Despite this, most TFs, including pluripotency factors like SOX2 in naïve ESCs, remained associated with binding sites following ERK-mediated repression. This suggests that while ERK-mediated activation is triggered by canonical ETS–AP-1 TFs, cell type-specific repression is mediated by decommissioning without significant reduction in lineage-specific TF binding.
+
+ERK mediates distinct cis-regulatory strategies depending on the context. Upon ERK stimulation, researchers observed changes in the accessibility of regulatory regions, both previously defined as enhancers and new regions. By combining RNA-seq with ATAC-seq, they distinguished between two strategies: ERK regulating genes near already accessible regions or downstream factors influencing accessibility to change gene expression.
+
+Many regions were specifically accessible in each cell type before ERK induction, enriched for different TF motifs. In EpiLCs, genes near accessible regions were more strongly upregulated than in ESCs and RSCs, suggesting signaling acts on accessible regulatory sequences in EpiLCs. In contrast, naïve ESCs required chromatin remodeling for ERK response, with a strong correlation between changes in accessibility and transcription at the nearest gene.
+
+Overall, the chromatin landscape present before signaling significantly impacts the signaling output. ERK exploits preconfigured targets in EpiLCs, while in naïve ESCs, it drives the rearrangement of target loci. This highlights the importance of pre-existing chromatin states in determining cell type-specific responses to ERK signaling.
+
+
+## Data Analysis on ATAC-seq Data by the Paper
+
+Raw reads were processed using bcl2fastq, and adapters were trimmed with cutadapt. The reads were then mapped to the mm10 genome using bowtie2. To ensure data quality, ChrM, duplicate reads, and reads in blacklisted regions were removed. Peaks were called using macs2 with broad peak calling parameters, and consensus peaks per condition were defined from two replicates using the DiffBind package.
+
+Promoter regions were removed using the Eukaryotic Promoter Database to focus on relevant regions. Reads within the defined peaks were counted using subread featureCounts, generating a count table for downstream differential enrichment analysis. DESeq2 was employed to obtain the Log2 Fold Change (log2FC) enrichment per peak before and after ERK induction, with significance defined as abs(log2FC) > 1.5 and padj < 0.01. Overlap of peaks between conditions was determined using bedtools intersect.
+
+Motif analysis and peak annotation were performed with HOMER, including motif finding and peak annotation. Visualization of the data was achieved through heatmaps and profile plots created using deeptools. TF footprinting and differential binding scores were determined using TOBIAS, with correction and scoring done in merged bam files with both replicates against all consensus peaks. BINDetect was performed in the peak set of interest. TF binding motifs for footprinting analysis were downloaded from the latest version of JASPAR.
+
+## Our Data Analysis
+
+We downloaded the ATAC-seq counts from GEO. Then we wanted produce some enrichment plot, but stumbled upon a bug we could not resolve. Same happened for the differential analysis.
+
+## Code
+
+```{r, eval=FALSE}
 suppressPackageStartupMessages({
   library(epiwraps)
   library(AnnotationHub)
@@ -25,14 +91,65 @@ suppressPackageStartupMessages({
 
 
 
-```{r}
+```{r, eval=FALSE}
 ah <- AnnotationHub::AnnotationHub()
+```
+## Dwonload ATAC-seq data
+
+```{r, eval=FALSE}
+download.file(
+  "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM8111840",
+  "esc_0h_1.bw"
+)
+download.file(
+  "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM8111841", 
+  "esc_0h_2.bw"
+)
+download.file(
+  "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM8111842",
+  "esc_4h_1.bw"
+)
+download.file(
+  "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM8111843",
+  "esc_4h_2.bw"
+)
+download.file(
+  "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM8111844",
+  "rsc_0h_1.bw"
+)
+download.file(
+  "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM8111845",
+  "rsc_0h_2.bw"
+)
+download.file(
+  "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM8111846",
+  "rsc_4h_1.bw"
+)
+download.file(
+  "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM8111847",
+  "rsc_4h_2.bw"
+)
+download.file(
+  "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM8111848",
+  "epilc_0h_1.bw"
+)
+download.file(
+  "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM8111849",
+  "epilc_0h_2.bw"
+)
+download.file(
+  "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM8111850",
+  "epilc_4h_1.bw"
+)
+download.file(
+  "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM8111851",
+  "epilc_4h_2.bw"
+)
 ```
 
 # Plot enrichment heatmaps
-(Code is from week07)
 
-```{r}
+```{r, eval=FALSE}
 # get CTCF motif
 motif <- query(MotifDb, c("CTCF","Mus"))[[1]]
 motif2 <- convert_motifs(motif, class="TFBSTools-PFMatrix")
@@ -41,20 +158,21 @@ genome <- ah[["AH68356"]]
 chr1 <- rtracklayer::import(genome)["1"]
 
 # find motif matches across chr19
-moi <- motifmatchr::matchMotifs(motif2, chr1, out="positions", p.cutoff=1e-5)[[1]]
+moi <- motifmatchr::matchMotifs(motif2, chr1, out="positions", 
+                                p.cutoff=1e-5)[[1]]
 # convert to GRanges
 moi <- as(setNames(moi,names(chr1)), "GRanges")
 ```
 
-```{r, fig.width=8, fig.height=4}
+```{r, fig.width=8, fig.height=4, eval=FALSE}
 tracks <- list.files(pattern="bw$")
 names(tracks) <- gsub("\\.bw","",basename(tracks))
 
-sm <- signal2Matrix(tracks, moi, w=5, extend=300)
-plotEnrichedHeatmaps(sm, trim=0.95)
+#sm <- signal2Matrix(tracks, moi, w=5, extend=300)
+#plotEnrichedHeatmaps(sm, trim=0.95)
 ```
 
-```{r}
+```{r, eval=FALSE}
 nf <- getNormFactors(tracks, useSeqLevels="1", nwind=5000L)
 sm <- renormalizeSignalMatrices(sm, scaleFactors = nf)
 
@@ -62,9 +180,8 @@ plotEnrichedHeatmaps(sm, trim=0.95, minRowVal = 12, colors = c("white","darkred"
 ```
 
 # Differential Analysis
-(Code is from week08)
 
-```{r}
+```{r, eval=FALSE}
 # get motifs 
 motifs <- query(MotifDb, c("HOCOMOCOv10", "Mmusculus"))
 # convert to a format motifmatchr can use, and use the gene symbols as names
@@ -74,7 +191,7 @@ motifs <- do.call(TFBSTools::PWMatrixList, setNames(
 motifs
 ```
 
-```{r}
+```{r, eval=FALSE}
 # get genome
 genome <- ah[["AH68356"]]
 ```
@@ -86,9 +203,9 @@ tracks
 ```
 
 
-```{r}
+```{r, eval=FALSE}
 # get the peaks
-peak <- rtracklayer::import(genome)["1"] ### WHAT DO WE NEED TO USE AS PEAK???
+peak <- rtracklayer::import(genome)["1"]
 hist(width(peak))
 # we need to resize the peaks so that they all have a comparable size
 # usually data is paired, but note here
@@ -98,3 +215,20 @@ peak <- resize(peak, width=300, fix="center")
 se <- chromVAR::getCounts(alignment_files = bams, peaks = peak, paired = FALSE)
 se
 ```
+
+
+## Discussion
+
+The enduring question in developmental biology is how a single signal can yield different outcomes based on the cellular or tissue context. FGF/ERK, a key player in processes like proliferation, survival, and differentiation, operates in many tissues throughout development. However, understanding how it manages this regulatory diversity via a set of conserved immediate early transcription factors (TFs) is challenging.
+
+To explore context-dependent cellular reactions to ERK, researchers developed a tool that functions both in vivo and in vitro, enabling precise, uniform, and controlled ERK activation. They discovered that context-dependent transcription largely relies on this pathway's ability to suppress cell type-specific transcription. This model overcomes heterogeneity and feedback inhibition, historically complicating the evaluation of signaling responses.
+
+Their findings suggest that ERK-mediated activation is triggered by canonical ETS–AP-1 TFs, while cell type-specific repression is mediated by decommissioning without significant reduction in lineage-specific TF binding. In naïve ESCs, regions losing accessibility upon ERK induction are characterized by TCF motifs, suggesting an FGF-dependent alteration in WNT activity. In the Epiblast lineage, repression by ERK targets naïve ESC enhancers enriched in POU/OCT motifs, promoting the transition into primed pluripotency. In EpiLCs, where FGF/ERK supports self-renewal, FOX factors prominent in gastrulation stage differentiation are identified.
+
+The study reconciles the role of FGF/ERK in neural differentiation with the concept of default neural induction. ERK's context-dependent repression drives endoderm differentiation in the presence of WNT signaling but Epiblast differentiation in its absence. The presence of POU motifs in ERK-repressed RSC enhancers suggests that FGF/ERK represses overlapping pluripotent/neural programs regulated by POU and SOX proteins, supporting the maintenance of Epiblast identity over its differentiation towards anterior neural.
+
+From a regulatory perspective, cell type-specific response is largely about repression. Immediate early genes activated downstream of ERK are likely context-independent, while repression depends on the regulatory program transcribed in the target cell type. Activation is more ubiquitous, relying on a conserved set of factors, but time and duration eventually alter the transcriptional program in the responding cell type. This interaction between common immediate early TFs and cell type-specific factors produces a unique response. For example, pluripotency genes are induced in EpiLCs only after four hours, unlikely to be regulated directly by ETS–AP-1 factors.
+
+While this work focuses on FGF/ERK, the question of context is universal to all signaling pathways. The study shows that these ubiquitous factors can act identically in different cell types, but their capacity to induce transcription is not always correlated with alterations in chromatin structure. They found that the cis-regulatory strategy by which signaling generates a transcriptional output requires remodeling in naïve ESCs, but not in EpiLCs, suggesting that the same signal can employ different strategies depending on the context. This adaptability to cellular context and chromatin has also been observed in other developmental settings, though the mechanisms remain unclear.
+
+Their data provides a framework for signal-dependent context specificity, where both transcriptional and chromatin changes in response to ERK are more universal in activation than repression. Context-dependent repression is mediated mainly by deactivation of enhancers, leaving cell-specific TFs bound to their targets. Activation of ERK-responsive genes relies largely on commonly activated genes triggered as an immediate early response to ETS–AP-1 canonical factors, but this can be propagated through existing cell-specific states. Whether activation exploits chromatin remodeling or not depends on the presence of prebound core TFs, which could render cells plastic to respond to signaling and differentiate in specific contexts.
