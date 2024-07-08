@@ -464,7 +464,7 @@ Their data provides a framework for signal-dependent context specificity, where 
 
 ## Conclusion
 
-Despite our best efforts, we were unable to complete the research project due to significant issues with the provided bigwig files and the associated code. These technical challenges hindered our ability to process and analyze the data effectively, ultimately preventing us from drawing meaningful conclusions.
+Despite our best efforts, we were unable to complete the research project due to significant issues with the provided bigwig files and the associated code. These technical challenges hindered our ability to process and analyze the data effectively, ultimately preventing us from drawing conclusions.
 
 ## References
 [1] Perera, Marta, and Josh Brickman. "Common modes of ERK induction resolve into context specific signalling via a combination of signal duration and cell type specific transcriptional repression." bioRxiv (2024): 2024-02.
